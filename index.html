@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/style.css" rel="stylesheet">
+    <!--<link rel="stylesheet" media="screen and (min-width:501px) and (max-width:799px)" href="css/over501under799.css">
+    <link rel="stylesheet" media="screen and (min-width:800px)" href="css/over800.css">!-->
+    <title>Neighborhood Map</title>
+</head>
+<body>
+  <div class="container">
+      <div class="options-box">
+        <h1>Explore Your Neigborhood!</h1>
+        <ul id="places" data-bind="foreach: placeList">
+          <li data-bind="text: name, click: $parent.pickPlace">
+        </ul>
+        <div id="place" data-bind="with: currentPlace">
+
+            <h2 data-bind="text: name"></h2>
+            <div data-bind="text: address"></div>
+        </div>
+        <div>
+          <input id="show-listings" type="button" value="Show Listings">
+        </div>
+      </div>
+    <div id="map">
+    </div>
+
+
+
+
+    <script src="js/lib/knockout-3.4.2.js"></script>
+    <script src="js/app.js"></script>
+    <script async defer
+      src=
+      "https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyB8pQW1ZMAP8lvAOk2qWcd3dYSBrYvo1G8&v=3&callback=initMap">
+    </script>
+</body>
+</html>
