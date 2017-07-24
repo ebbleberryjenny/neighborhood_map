@@ -98,6 +98,8 @@ name//place data/model
   var Place = function(data) {
     this.name = ko.observable(data.name);
     this.address = ko.observable(data.address);
+    this.marker = ko.observable();
+    this.infoWindow = ko.observable();
     //this.nicknames = ko.observableArray(data.nicknames);
     /*this.level = ko.computed(function(){
       if (this.clickCount() < 10) {
@@ -111,10 +113,8 @@ name//place data/model
   };
 
   //Make currentPlace change when you click on a place name
-
   var ViewModel = function() {
     var self = this;
-
     this.placeList = ko.observableArray([]);
 
     places.forEach(function(placeItem){
@@ -122,10 +122,6 @@ name//place data/model
     });
 
     this.currentPlace = ko.observable(this.placeList()[0]);
-
-    /*this.incrementCounter = function() {
-      self.currentCat().clickCount(self.currentCat().clickCount() + 1);
-    };*/
 
     this.pickPlace = function(clickedPlace) {
       self.currentPlace(clickedPlace);
@@ -159,18 +155,20 @@ function initMap() {
   // The following group uses the places array to create an array of markers on initialize.
   for (var i = 0; i < places.length; i++) {
     // Get the position from the location array.
-    var position = places[i].location;
-    var name = places[i].name;
+    //var position = places[i].location;
+    //var name = places[i].name;
     // Create a marker per location, and put into markers array.
-    var marker = new google.maps.Marker({
-      position: position,
-      name: name,
+    marker = new google.maps.Marker({
+      map: map,
+      position: places[i].location,
+      name: places[i].name,
       animation: google.maps.Animation.DROP,
       icon: defaultIcon,
       id: i
     });
     // Push the marker to our array of markers.
     markers.push(marker);
+
     // Create an onclick event to open the large infowindow at each marker.
     marker.addListener('click', function() {
       populateInfoWindow(this, largeInfowindow);
@@ -179,13 +177,22 @@ function initMap() {
     // to change the colors back and forth.
     marker.addListener('mouseover', function() {
       this.setIcon(highlightedIcon);
+      toggleBounce(marker);
     });
     marker.addListener('mouseout', function() {
       this.setIcon(defaultIcon);
     });
   }
 
-  document.getElementById('show-listings').addEventListener('click', showListings);
+  function toggleBounce(marker) {
+    if (marker.getAnimation() !== null) {
+      marker.setAnimation(null);
+    } else {
+      marker.setAnimation(google.maps.Animation.BOUNCE);
+    }
+  }
+
+  //document.getElementById('show-listings').addEventListener('click', showListings);
 
   // This function populates the infowindow when the marker is clicked. We'll only allow
   // one infowindow which will open at the marker that is clicked, and populate based
