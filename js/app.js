@@ -1,9 +1,13 @@
-name//place data/model
+var markers = [];
+var map;
+
+//place data/model
   var places = [
     {
       name: 'Park Ave Penthouse',
       address: '123 Sesame Street',
       location: {lat: 40.7713024, lng: -73.9632393}
+      //marker: markers[i]
     },
     {
       name: 'Chelsea Loft',
@@ -96,21 +100,13 @@ name//place data/model
   ];
 
   var Place = function(data) {
+    var self = this;
+
     this.name = ko.observable(data.name);
     this.address = ko.observable(data.address);
     this.marker = ko.observable();
     this.infoWindow = ko.observable();
-    //this.nicknames = ko.observableArray(data.nicknames);
-    /*this.level = ko.computed(function(){
-      if (this.clickCount() < 10) {
-        return "Newborn";
-      } else if (this.clickCount() < 20) {
-        return "Teen";
-      } else {
-        return "Adult";
-      }
-    }, this);*/
-  };
+  }
 
   //Make currentPlace change when you click on a place name
   var ViewModel = function() {
@@ -131,8 +127,6 @@ name//place data/model
   ko.applyBindings(new ViewModel());
 
 // Create a new blank array for all the listing markers.
-var markers = [];
-var map;
 
 function initMap() {
   // Constructor creates a new map - only center and zoom are required.
@@ -169,15 +163,16 @@ function initMap() {
     // Push the marker to our array of markers.
     markers.push(marker);
 
-    // Create an onclick event to open the large infowindow at each marker.
+    // Create an onclick event to open the large infowindow at each marker & have it bounce.
     marker.addListener('click', function() {
       populateInfoWindow(this, largeInfowindow);
+      this.setIcon(highlightedIcon);
+      toggleBounce(this);
     });
     // Two event listeners - one for mouseover, one for mouseout,
     // to change the colors back and forth.
     marker.addListener('mouseover', function() {
       this.setIcon(highlightedIcon);
-      toggleBounce(marker);
     });
     marker.addListener('mouseout', function() {
       this.setIcon(defaultIcon);
@@ -192,8 +187,6 @@ function initMap() {
     }
   }
 
-  //document.getElementById('show-listings').addEventListener('click', showListings);
-
   // This function populates the infowindow when the marker is clicked. We'll only allow
   // one infowindow which will open at the marker that is clicked, and populate based
   // on that markers position.
@@ -206,6 +199,7 @@ function initMap() {
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
         infowindow.marker = null;
+        marker.setAnimation(null);
       });
       var streetViewService = new google.maps.StreetViewService();
       var radius = 50;
