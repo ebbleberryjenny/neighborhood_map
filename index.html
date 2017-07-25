@@ -13,10 +13,10 @@
       <div class="options-box">
         <h1>Explore Your Neigborhood!</h1>
         <ul id="places" data-bind="foreach: placeList">
-          <li data-bind="text: name, click: $parent.pickPlace">
+          <li data-bind="text: name, click: $parent.markerAnimator.bind($data, $index())">
         </ul>
         <div id="place" data-bind="with: currentPlace">
-            <h2 data-bind="text: name, click: $parent.markerAnimator"></h2>
+            <h2 data-bind="text: name"></h2>
             <div data-bind="text: address"></div>
         </div>
       </div>

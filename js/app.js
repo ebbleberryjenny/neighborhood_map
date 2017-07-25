@@ -14,31 +14,31 @@ var map;
       name: 'Chelsea Loft',
       location: {lat: 40.7444883, lng: -73.9949465},
       marker: markers,
-      id: 0
+      id: 1
     },
     {
       name: 'Union Square Open Floor Plan',
       location: {lat: 40.7347062, lng: -73.9895759},
       marker: markers,
-      id: 1
+      id: 2
     },
     {
       name: 'East Village Hip Studio',
       location: {lat: 40.7281777, lng: -73.984377},
       marker: markers,
-      id: 2
+      id: 3
     },
     {
       name: 'TriBeCa Artsy Bachelor Pad',
       location: {lat: 40.7195264, lng: -74.0089934},
       marker: markers,
-      id: 3
+      id: 4
     },
     {
       name: 'Chinatown Homey Space',
       location: {lat: 40.7180628, lng: -73.9961237},
       marker: markers,
-      id: 4
+      id: 5
     }
   ];
 
@@ -135,9 +135,8 @@ var map;
     };
 
     // Click binding
-    self.markerAnimator = function(places) {
-      google.maps.event.trigger(places, 'click');
-      console.log(places);
+    self.markerAnimator = function(index) {
+      google.maps.event.trigger(markers[index], 'click');
     };
   }
 
