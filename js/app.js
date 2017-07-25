@@ -6,28 +6,39 @@ var map;
     {
       name: 'Park Ave Penthouse',
       address: '123 Sesame Street',
-      location: {lat: 40.7713024, lng: -73.9632393}
-      //marker: markers[i]
+      location: {lat: 40.7713024, lng: -73.9632393},
+      marker: markers,
+      id: 0
     },
     {
       name: 'Chelsea Loft',
-      location: {lat: 40.7444883, lng: -73.9949465}
+      location: {lat: 40.7444883, lng: -73.9949465},
+      marker: markers,
+      id: 0
     },
     {
       name: 'Union Square Open Floor Plan',
-      location: {lat: 40.7347062, lng: -73.9895759}
+      location: {lat: 40.7347062, lng: -73.9895759},
+      marker: markers,
+      id: 1
     },
     {
       name: 'East Village Hip Studio',
-      location: {lat: 40.7281777, lng: -73.984377}
+      location: {lat: 40.7281777, lng: -73.984377},
+      marker: markers,
+      id: 2
     },
     {
       name: 'TriBeCa Artsy Bachelor Pad',
-      location: {lat: 40.7195264, lng: -74.0089934}
+      location: {lat: 40.7195264, lng: -74.0089934},
+      marker: markers,
+      id: 3
     },
     {
       name: 'Chinatown Homey Space',
-      location: {lat: 40.7180628, lng: -73.9961237}
+      location: {lat: 40.7180628, lng: -73.9961237},
+      marker: markers,
+      id: 4
     }
   ];
 
@@ -104,7 +115,7 @@ var map;
 
     this.name = ko.observable(data.name);
     this.address = ko.observable(data.address);
-    this.marker = ko.observable();
+    this.marker = ko.observable(data.marker[data.id]);
     this.infoWindow = ko.observable();
   }
 
@@ -121,6 +132,12 @@ var map;
 
     this.pickPlace = function(clickedPlace) {
       self.currentPlace(clickedPlace);
+    };
+
+    // Click binding
+    self.markerAnimator = function(places) {
+      google.maps.event.trigger(places, 'click');
+      console.log(places);
     };
   }
 
