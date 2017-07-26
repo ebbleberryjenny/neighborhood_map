@@ -119,18 +119,20 @@ var map;
     this.infoWindow = ko.observable();
   }
 
-  //Make currentPlace change when you click on a place name
+
   var ViewModel = function() {
     var self = this;
-    this.placeList = ko.observableArray([]);
+    self.placeList = ko.observableArray([]);
+    self.query = ko.observable('');
 
     places.forEach(function(placeItem){
       self.placeList.push(new Place (placeItem));
     });
 
-    this.currentPlace = ko.observable(this.placeList()[0]);
+    //Make currentPlace change when you click on a place name
+    self.currentPlace = ko.observable(self.placeList()[0]);
 
-    this.pickPlace = function(clickedPlace) {
+    self.pickPlace = function(clickedPlace) {
       self.currentPlace(clickedPlace);
     };
 
@@ -138,9 +140,28 @@ var map;
     self.markerAnimator = function(index) {
       google.maps.event.trigger(markers[index], 'click');
     };
+
+    self.onClick = function() {
+      self.pickPlace();
+      self.markerAnimator();
+    };
+
+    self.search = function(value) {
+      // remove all the current places, which removes them from the view
+      self.placeList.removeAll();
+      for(var x in self.placeList) {
+        if (self.placeList[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+          self.placeList.push(self.placeList[x]);
+        }
+      }
+    };
+
+    self.query.subscribe(self.search);
   }
 
   ko.applyBindings(new ViewModel());
+
+
 
 // Create a new blank array for all the listing markers.
 
@@ -164,9 +185,6 @@ function initMap() {
 
   // The following group uses the places array to create an array of markers on initialize.
   for (var i = 0; i < places.length; i++) {
-    // Get the position from the location array.
-    //var position = places[i].location;
-    //var name = places[i].name;
     // Create a marker per location, and put into markers array.
     marker = new google.maps.Marker({
       map: map,
