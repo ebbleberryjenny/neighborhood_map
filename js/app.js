@@ -124,6 +124,7 @@ var map;
     var self = this;
     self.placeList = ko.observableArray([]);
     self.query = ko.observable('');
+    self.currentPlace = ko.observable();
 
     places.forEach(function(placeItem){
       self.placeList.push(new Place (placeItem));
@@ -149,9 +150,9 @@ var map;
     self.search = function(value) {
       // remove all the current places, which removes them from the view
       self.placeList.removeAll();
-      for(var x in self.placeList) {
-        if (self.placeList[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
-          self.placeList.push(self.placeList[x]);
+      for(var x in places) {
+        if (places[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+          self.placeList.push(places[x]);
         }
       }
     };

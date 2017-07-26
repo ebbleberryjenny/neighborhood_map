@@ -16,7 +16,7 @@
           Filter the list of options here:<br>
           <input placeholder="Search…" type="search" data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off"><br>
         </form>
-        <ul id="places" data-bind="foreach: placeList, visible: filterList">
+        <ul id="places" data-bind="foreach: placeList">
           <li data-bind="text: name, click: $parent.pickPlace, click: $parent.markerAnimator.bind($data, $index())">
         </ul>
         <div id="place" data-bind="with: currentPlace">
