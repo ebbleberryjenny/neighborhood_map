@@ -13,18 +13,19 @@
       <div class="options-box">
         <h1>Explore Your Neigborhood!</h1>
         <form>
-          Filter the list of options here:<br>
+          Search:<br>
           <input placeholder="Search…" type="search" data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off"><br>
         </form>
         <ul id="places" data-bind="foreach: placeList">
           <li data-bind="text: name, click: $parent.onClick">
         </ul>
+        <hr>
         <div id="place" data-bind="with: currentPlace">
             <h2 data-bind="text: name"></h2>
             <div data-bind="text: address"></div>
         </div>
         <div class="foursquare-reviews">
-          <h2>Foursquare reviews</h2>
+          <hr>
           <div id="foursquare-content">
           </div>
         </div>
