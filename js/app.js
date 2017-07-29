@@ -173,6 +173,9 @@ function toggleBounce(marker) {
     marker.setAnimation(null);
   } else {
     marker.setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(function() {
+      marker.setAnimation(null);
+    }, 2000);
   }
 }
 
@@ -238,9 +241,7 @@ function makeMarkerIcon(markerColor) {
   return markerImage;
 }
 
-function loadData(marker) {
-  var $foursquareData = $('#foursquare-content');
-
+function loadData(foursquareData, index) {
   var apiURL = 'https://api.foursquare.com/v2/venues/';
   var foursquareClientID = 'HUDI4LKRSI4RV5LIDRMDAE1MWRBGNYN3R3SQ1CFPQVUBYX4N';
   var foursquareSecret ='02OHUV51QTN2BPKHUQJB5UZOOIWPZQBIADXB1JIVKQOIGDVC';
@@ -248,20 +249,44 @@ function loadData(marker) {
   var index = marker.id;
   var spot = places[index];
   var venueFoursquareID = spot.foursquare;
+  console.log(venueFoursquareID);
+
 
   var foursquareURL = apiURL + venueFoursquareID + '?client_id=' + foursquareClientID +  '&client_secret=' + foursquareSecret +'&v=' + foursquareVersion;
+
+  this.foursquareList = ko.observableArray([]);
 
   $.ajax({
     url: foursquareURL,
     success: function(data) {
       var info = data.response.venue;
-      $foursquareData.append('<p class="article">'+
+      var shortUrl = info.shortUrl;
+      var description = info.description;
+      var category = info.categories[0].name;
+      var rating = info.rating;
+      console.log(data);
+      foursquareList.push(data);
+      console.log(foursquareList.shortUrl);
+    }
+  });
+
+      //url = ("<em><a href=" + info.shortUrl + ">For Foursquare info, click here</a>.</em>");
+
+      /*notsurewhattoputhere.setContent('<p class="article">'+
       '<a href="'+ info.shortUrl + '">Click for Foursquare info here</a>' +
         '<p>' + info.description + '<br>' + "<p>Category: " + info.categories[0].name + '<br>' +
         'The Foursquare rating is: ' + info.rating + '</p>'
       );
     }
-  });
+  });/*
+
+  /*$.ajax(...)
+  .fail(function() {
+    notsurewhattoputhere.setContent('<div>' + marker.title + '</div>' +
+          '<div>' + ' failed to access foursquare :(' + '</div>' +
+          '<div>' + 'powered by' + '<b>' + ' ' + ' Foursquare' + '</b>' + '</div>');
+  });*/
+
 }
 
 var Place = function(data) {
@@ -270,6 +295,10 @@ var Place = function(data) {
   this.name = ko.observable(data.name);
   this.address = ko.observable(data.address);
   this.id = data.id;
+  this.marker = data.marker;
+  this.foursquareData = data.foursquare;
+  this.info = ko.observable('');
+  this.foursquareList = ko.observableArray([]);
 
 };
 
@@ -278,6 +307,7 @@ var ViewModel = function() {
   self.placeList = ko.observableArray([]);
   self.query = ko.observable('');
   self.currentPlace = ko.observable();
+  self.foursquareList = ko.observableArray([]);
 
   places.forEach(function(placeItem, i){
     self.placeList.push(new Place (placeItem, i));
@@ -312,6 +342,18 @@ var ViewModel = function() {
     }
   };
 
+  self.markerSearch = function(value) {
+    for(var x in places) {
+      if (places[x].marker.setMap(map) !== null) {
+          places[x].marker.setMap(null);
+      }
+      if (places[x].marker.name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+          places[x].marker.setMap(map);
+      }
+    }
+  };
+
   self.query.subscribe(self.search);
+  self.query.subscribe(self.markerSearch);
 
 };
