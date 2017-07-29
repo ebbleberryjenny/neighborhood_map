@@ -258,15 +258,18 @@ function loadData(foursquareData, index) {
 
   $.ajax({
     url: foursquareURL,
+    dataType: 'json',
     success: function(data) {
+      var foursquareInfo = {};
       var info = data.response.venue;
-      var shortUrl = info.shortUrl;
-      var description = info.description;
-      var category = info.categories[0].name;
-      var rating = info.rating;
+      foursquareInfo.shortUrl = info.shortUrl;
+      foursquareInfo.description = info.description;
+      foursquareInfo.category = info.categories[0].name;
+      foursquareInfo.rating = info.rating;
       console.log(data);
-      foursquareList.push(data);
-      console.log(foursquareList.shortUrl);
+      foursquareList.push(foursquareInfo);
+      console.log(foursquareList());
+      console.log('Got data!');
     }
   });
 
@@ -308,6 +311,7 @@ var ViewModel = function() {
   self.query = ko.observable('');
   self.currentPlace = ko.observable();
   self.foursquareList = ko.observableArray([]);
+  console.log(self.foursquareList());
 
   places.forEach(function(placeItem, i){
     self.placeList.push(new Place (placeItem, i));

@@ -26,8 +26,8 @@
         </div>
         <div class="foursquare-reviews">
           <hr>
-          <div id="foursquare-content">
-            <div data-bind="text: info"></div>
+          <div id="foursquare-content" data-bind="foreach: foursquareList">
+            <div data-bind="text: $data.description"></div>
           </div>
         </div>
       </div>
