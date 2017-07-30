@@ -124,7 +124,6 @@ function initMap(mark) {
   });
 
   var largeInfowindow = new google.maps.InfoWindow();
-  //var bounds = new google.maps.LatLngBounds();
 
   // Style the markers a bit. This will be our listing marker icon.
   var defaultIcon = makeMarkerIcon('0091ff');
@@ -144,16 +143,14 @@ function initMap(mark) {
       icon: defaultIcon,
       id: i
     });
-    // Push the marker to our array of markers.
+
     places.marker = marker;
-    //markers.push(marker);
 
     // Create an onclick event to open the large infowindow at each marker & have it bounce.
     marker.addListener('click', function() {
       populateInfoWindow(this, largeInfowindow);
       this.setIcon(highlightedIcon);
       toggleBounce(this);
-      loadData(this);
     });
     // Two event listeners - one for mouseover, one for mouseout,
     // to change the colors back and forth.
@@ -179,30 +176,46 @@ function toggleBounce(marker) {
   }
 }
 
+function googleError() {
+    alert("Google is not loading your map, sorry.");
+    $("#map").text(' The google map has an error.  Please try again later.');
+}
+
 // This function populates the infowindow when the marker is clicked. We'll only allow
 // one infowindow which will open at the marker that is clicked, and populate based
 // on that markers position.
 function populateInfoWindow(marker, infowindow) {
-  function getStreetView(data, status) {
-    if (status == google.maps.StreetViewStatus.OK) {
-      var nearStreetViewLocation = data.location.latLng;
-      var heading = google.maps.geometry.spherical.computeHeading(
-        nearStreetViewLocation, marker.position);
-        infowindow.setContent('<div>' + marker.name + '</div><div id="pano"></div>');
-        var panoramaOptions = {
-          position: nearStreetViewLocation,
-          pov: {
-            heading: heading,
-            pitch: 30
-          }
-        };
-      var panorama = new google.maps.StreetViewPanorama(
-        document.getElementById('pano'), panoramaOptions);
-    } else {
-      infowindow.setContent('<div>' + marker.name + '</div>' +
-        '<div>No Street View Found</div>');
+  var apiURL = 'https://api.foursquare.com/v2/venues/';
+  var foursquareClientID = 'HUDI4LKRSI4RV5LIDRMDAE1MWRBGNYN3R3SQ1CFPQVUBYX4N';
+  var foursquareSecret ='02OHUV51QTN2BPKHUQJB5UZOOIWPZQBIADXB1JIVKQOIGDVC';
+  var foursquareVersion = '20170723';
+  var index = marker.id;
+  var spot = places[index];
+  var venueFoursquareID = spot.foursquare;
+  var foursquareURL = apiURL + venueFoursquareID + '?client_id=' + foursquareClientID +  '&client_secret=' + foursquareSecret +'&v=' + foursquareVersion;
+
+  $.ajax({
+    url: foursquareURL,
+    dataType: 'json',
+    success: function(data) {
+      var info = data.response.venue;
+      console.log('Got data!');
+      console.log(data);
+      infowindow.setContent('<div>' + '<b>' + info.name + '</b>' + '</div><br>' +
+            '<a href="' + info.shortUrl + '">Click here for more Foursquare info</a>' +
+            '<div><br><em>' + 'Category: </em>' +
+            (info.categories[0].name ? info.categories[0].name : 'No categories available.') +
+            '</div>' + '<div><em>' + 'Foursquare rating: </em>' +
+            (info.rating ? info.rating : 'No rating available.') + '</div>' +
+            '<div><br><em>Description: </em>' + (info.description ? info.description : 'No description available.') +
+            '</div>');
+
+    },
+    fail: function() {
+      infowindow.setContent('<div>' + 'Sorry, Foursquare is not returning data.  Please try again later' + '</div>');
     }
-  }
+  });
+
   // Check to make sure the infowindow is not already opened on this marker.
   if (infowindow.marker != marker) {
     // Clear the infowindow content to give the streetview time to load.
@@ -213,15 +226,7 @@ function populateInfoWindow(marker, infowindow) {
       infowindow.marker = null;
       marker.setAnimation(null);
     });
-    var streetViewService = new google.maps.StreetViewService();
-    var radius = 50;
-    // In case the status is OK, which means the pano was found, compute the
-    // position of the streetview image, then calculate the heading, then get a
-    // panorama from that and set the options
 
-    // Use streetview service to get the closest streetview image within
-    // 50 meters of the markers position
-    streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
     // Open the infowindow on the correct marker.
     infowindow.open(map, marker);
   }
@@ -241,57 +246,6 @@ function makeMarkerIcon(markerColor) {
   return markerImage;
 }
 
-function loadData(foursquareData, index) {
-  var apiURL = 'https://api.foursquare.com/v2/venues/';
-  var foursquareClientID = 'HUDI4LKRSI4RV5LIDRMDAE1MWRBGNYN3R3SQ1CFPQVUBYX4N';
-  var foursquareSecret ='02OHUV51QTN2BPKHUQJB5UZOOIWPZQBIADXB1JIVKQOIGDVC';
-  var foursquareVersion = '20170723';
-  var index = marker.id;
-  var spot = places[index];
-  var venueFoursquareID = spot.foursquare;
-  console.log(venueFoursquareID);
-
-
-  var foursquareURL = apiURL + venueFoursquareID + '?client_id=' + foursquareClientID +  '&client_secret=' + foursquareSecret +'&v=' + foursquareVersion;
-
-  this.foursquareList = ko.observableArray([]);
-
-  $.ajax({
-    url: foursquareURL,
-    dataType: 'json',
-    success: function(data) {
-      var foursquareInfo = {};
-      var info = data.response.venue;
-      foursquareInfo.shortUrl = info.shortUrl;
-      foursquareInfo.description = info.description;
-      foursquareInfo.category = info.categories[0].name;
-      foursquareInfo.rating = info.rating;
-      console.log(data);
-      foursquareList.push(foursquareInfo);
-      console.log(foursquareList());
-      console.log('Got data!');
-    }
-  });
-
-      //url = ("<em><a href=" + info.shortUrl + ">For Foursquare info, click here</a>.</em>");
-
-      /*notsurewhattoputhere.setContent('<p class="article">'+
-      '<a href="'+ info.shortUrl + '">Click for Foursquare info here</a>' +
-        '<p>' + info.description + '<br>' + "<p>Category: " + info.categories[0].name + '<br>' +
-        'The Foursquare rating is: ' + info.rating + '</p>'
-      );
-    }
-  });/*
-
-  /*$.ajax(...)
-  .fail(function() {
-    notsurewhattoputhere.setContent('<div>' + marker.title + '</div>' +
-          '<div>' + ' failed to access foursquare :(' + '</div>' +
-          '<div>' + 'powered by' + '<b>' + ' ' + ' Foursquare' + '</b>' + '</div>');
-  });*/
-
-}
-
 var Place = function(data) {
   var self = this;
 
@@ -299,10 +253,6 @@ var Place = function(data) {
   this.address = ko.observable(data.address);
   this.id = data.id;
   this.marker = data.marker;
-  this.foursquareData = data.foursquare;
-  this.info = ko.observable('');
-  this.foursquareList = ko.observableArray([]);
-
 };
 
 var ViewModel = function() {
@@ -310,8 +260,6 @@ var ViewModel = function() {
   self.placeList = ko.observableArray([]);
   self.query = ko.observable('');
   self.currentPlace = ko.observable();
-  self.foursquareList = ko.observableArray([]);
-  console.log(self.foursquareList());
 
   places.forEach(function(placeItem, i){
     self.placeList.push(new Place (placeItem, i));
